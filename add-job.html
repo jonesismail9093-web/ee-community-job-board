@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Add a Job – EE Community Job Board</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    .add-wrap{max-width:640px;margin:32px auto;padding:0 20px 60px}
+    .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--primary);text-decoration:none;font-size:.9rem;margin-bottom:24px}
+    .back-link:hover{text-decoration:underline}
+    h2{font-size:1.4rem;margin-bottom:6px}
+    .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:28px}
+    .form-group{margin-bottom:18px}
+    label{display:block;font-size:.85rem;font-weight:600;margin-bottom:6px;color:var(--text)}
+    input[type=text],input[type=email],select,textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.9rem;font-family:inherit;color:var(--text);background:#fff;transition:border .2s}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)}
+    textarea{resize:vertical;min-height:90px}
+    .btn-generate{width:100%;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);font-size:1rem;font-weight:600;cursor:pointer;transition:background .15s;margin-top:8px}
+    .btn-generate:hover{background:var(--primary-dark)}
+    #output-wrap{display:none;margin-top:24px}
+    #output-wrap h3{font-size:1rem;margin-bottom:10px}
+    #output-wrap p{font-size:.85rem;color:var(--text-muted);margin-bottom:10px;line-height:1.5}
+    #json-output{background:#1e293b;color:#e2e8f0;padding:16px;border-radius:8px;font-size:.8rem;font-family:monospace;white-space:pre-wrap;word-break:break-all;overflow-x:auto}
+    .btn-copy{margin-top:10px;padding:8px 18px;background:#fff;border:1.5px solid var(--border);border-radius:6px;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+    .btn-copy:hover{background:var(--secondary)}
+    .copied{color:var(--green);font-size:.82rem;margin-top:6px;display:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <h1>💼 EE Community Job Board</h1>
+        <p>Early Education &amp; Childcare roles across the North West</p>
+      </div>
+      <a class="btn-add" href="index.html">← View Jobs</a>
+    </div>
+  </header>
+  <div class="add-wrap">
+    <a class="back-link" href="index.html">← Back to job board</a>
+    <h2>Post a New Job</h2>
+    <p class="subtitle">Fill in the details below. This generates a JSON snippet — send it to your site admin to add to the board.</p>
+    <div class="form-group"><label>Job Title *</label><input type="text" id="f-title" placeholder="e.g. Early Years Practitioner"/></div>
+    <div class="form-group"><label>Company / Setting *</label><input type="text" id="f-company" placeholder="e.g. Sunshine Nursery"/></div>
+    <div class="form-group"><label>Location *</label><input type="text" id="f-location" placeholder="e.g. Blackburn, Lancashire"/></div>
+    <div class="form-group"><label>Category *</label>
+      <select id="f-category">
+        <option value="">Select category…</option>
+        <option>Practitioner</option><option>Leadership</option><option>SEN</option><option>Management</option><option>Admin</option><option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Job Type *</label>
+      <select id="f-type">
+        <option value="">Select type…</option>
+        <option>Full-time</option><option>Part-time</option><option>Bank / Casual</option><option>Contract</option><option>Volunteer</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Salary / Pay Rate</label><input type="text" id="f-salary" placeholder="e.g. £24,000 – £27,000"/></div>
+    <div class="form-group"><label>Description *</label><textarea id="f-description" placeholder="Brief overview of the role…"></textarea></div>
+    <div class="form-group"><label>Requirements (one per line)</label><textarea id="f-requirements" placeholder="Level 3 Early Years qualification&#10;DBS check required"></textarea></div>
+    <div class="form-group"><label>Apply Email *</label><input type="email" id="f-email" placeholder="jobs@example.co.uk"/></div>
+    <button class="btn-generate" onclick="generate()">Generate JSON snippet</button>
+    <div id="output-wrap">
+      <h3>✅ Your JSON snippet</h3>
+      <p>Copy the snippet below and send to your site admin, or paste it into <code>jobs.json</code> yourself.</p>
+      <div id="json-output"></div>
+      <button class="btn-copy" onclick="copyJSON()">📋 Copy to clipboard</button>
+      <div class="copied" id="copied-msg">Copied!</div>
+    </div>
+  </div>
+  <script>
+    function generate(){
+      const g=id=>document.getElementById(id).value.trim();
+      const title=g('f-title'),company=g('f-company'),location=g('f-location'),category=g('f-category'),type=g('f-type'),desc=g('f-description'),email=g('f-email');
+      if(!title||!company||!location||!category||!type||!desc||!email){alert('Please fill in all required fields (marked *).');return;}
+      const obj={id:Date.now(),title,company,location,category,type,salary:g('f-salary')||'Competitive',posted:new Date().toISOString().split('T')[0],description:desc,requirements:g('f-requirements').split('\n').map(r=>r.trim()).filter(Boolean),applyEmail:email};
+      document.getElementById('json-output').textContent=JSON.stringify(obj,null,2);
+      document.getElementById('output-wrap').style.display='block';
+      document.getElementById('output-wrap').scrollIntoView({behavior:'smooth'});
+    }
+    function copyJSON(){navigator.clipboard.writeText(document.getElementById('json-output').textContent).then(()=>{const m=document.getElementById('copied-msg');m.style.display='block';setTimeout(()=>{m.style.display='none';},2000);});}
+  </script>
+</body>
+</html>
